@@ -1,9 +1,16 @@
 const express = require("express");
+const csurf = require("csurf");
 const authenticate = require("../middleware/authentication");
 const login = require("../middleware/login");
 const validateId = require("../middleware/validate-id");
 const documentController = require("../controller/documents");
+
 const router = express.Router();
+
+const csurfProtection = csurf({
+  cookie: true,
+});
+router.use(csurfProtection);
 
 router.post("/", authenticate, documentController.post);
 

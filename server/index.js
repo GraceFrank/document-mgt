@@ -1,7 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
-var cors = require("cors");
-
+const cors = require("cors");
 const connectToDb = require("./startup/db");
 const { connectToRedis } = require("./startup/cache");
 const routes = require("./startup/routes");
