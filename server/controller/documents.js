@@ -1,7 +1,7 @@
-const validate = require('../api-validations/document');
-const { Document, User, Role } = require('../models');
-const logger = require('../startup/logger');
-const response = require('../helpers/responses');
+const validate = require("../api-validations/document");
+const { Document, User, Role } = require("../models");
+const logger = require("../startup/logger");
+const response = require("../helpers/responses");
 
 class Documents {
   /**
@@ -20,11 +20,11 @@ class Documents {
       //search if role already exists
       const existingDoc = await Document.findOne({
         title: req.body.title,
-        ownerId: req.user.userId
+        ownerId: req.user.userId,
       });
       if (existingDoc)
         return response.alreadyExists(res, {
-          message: 'document with title already exist'
+          message: "document with title already exist",
         });
 
       //creating the new document
@@ -32,8 +32,8 @@ class Documents {
         ownerId: req.user.userId,
         title: req.body.title,
         content: req.body.content,
-        access: req.body.access || 'public',
-        role: req.user.roleId
+        access: req.body.access || "public",
+        role: req.user.roleId,
       });
 
       return response.created(res, doc);
@@ -67,37 +67,37 @@ class Documents {
           admin: {
             //this query will be run if user is an admin
             $or: [
-              { access: 'private', ownerId: req.user.userId },
-              { access: { $ne: 'private' } }
-            ]
+              { access: "private", ownerId: req.user.userId },
+              { access: { $ne: "private" } },
+            ],
           },
           otherRoles: {
             //this query will be run for the other roles
             $or: [
-              { access: 'private', ownerId: req.user.userId },
-              { access: 'public' },
-              { role: req.user.roleId, access: 'role' }
-            ]
-          }
+              { access: "private", ownerId: req.user.userId },
+              { access: "public" },
+              { role: req.user.roleId, access: "role" },
+            ],
+          },
         };
 
         //get the role of the user
         let userRole = await Role.findById(req.user.roleId);
         userRole = userRole.title;
 
-        query = userRole === 'admin' ? roleQuery.admin : roleQuery.otherRoles;
-      } else query = { access: 'public' }; //this query will run if user is not logged in
+        query = userRole === "admin" ? roleQuery.admin : roleQuery.otherRoles;
+      } else query = { access: "public" }; //this query will run if user is not logged in
 
       const queryOptions = {
         skip: (page - 1) * limit,
         limit: limit,
-        sort: { date: -1 }
+        sort: { date: -1 },
       };
       const documents = await Document.find(query, queryOptions);
 
       const message =
-        'Array of 0 or more documents has been fetched successfully';
-      return response.success(res, { message, documents });
+        "Array of 0 or more documents has been fetched successfully";
+      return response.success(res, documents);
     } catch (error) {
       logger.error(error);
       return response.internalError(res, { error });
@@ -120,19 +120,19 @@ class Documents {
       //fetch the required
       const doc = await Document.findOne({
         _id: req.params.id,
-        ownerId: req.user.userId
+        ownerId: req.user.userId,
       });
       if (!doc)
-        return response.notFound(res, { message: 'Document not found' });
+        return response.notFound(res, { message: "Document not found" });
 
       //check that new doc title is unique to the user
       const existingDoc = await Document.findOne({
         title: req.body.title,
         _id: { $ne: req.params.id },
-        ownerId: req.userId
+        ownerId: req.userId,
       });
       if (existingDoc) {
-        return response.badRequest(res, { message: 'document already exists' });
+        return response.badRequest(res, { message: "document already exists" });
       }
       //update the document in the db
       const update = await Document.findByIdAndUpdate(req.params.id, req.body);
@@ -154,10 +154,10 @@ class Documents {
       //checking if document exist on db
       const doc = await Document.findOne({
         _id: req.params.id,
-        ownerId: req.user.userId
+        ownerId: req.user.userId,
       });
       if (!doc)
-        return response.notFound(res, { message: 'document not found' });
+        return response.notFound(res, { message: "document not found" });
 
       //delete the document
       const deleted = await Document.findByIdAndDelete(doc._id);
@@ -178,7 +178,7 @@ class Documents {
     try {
       const doc = await Document.findById(req.params.id);
       if (!doc)
-        return response.notFound(res, { message: 'document not found' });
+        return response.notFound(res, { message: "document not found" });
 
       //method is called based on the access type of the document
       const grantAccess = {
@@ -189,16 +189,16 @@ class Documents {
         role: async () => {
           //check if user is an admin and grant access
           const roles = await Role.find();
-          const adminRole = roles.find(role => role.title === 'admin');
+          const adminRole = roles.find((role) => role.title === "admin");
           if (req.user.roleId == adminRole._id) return true;
           //check if the users role is same as the docOwner's role
           const docOwner = await User.findById(doc.ownerId);
           if (docOwner.role == req.user.roleId) return true;
-        }
+        },
       };
       if (await grantAccess[doc.access]()) return response.success(res, doc);
       return response.forbidden(res, {
-        message: 'you do not have access to this document'
+        message: "you do not have access to this document",
       });
     } catch (error) {
       logger.error(error);
@@ -224,24 +224,24 @@ class Documents {
 
       const docOwner = await User.findById(req.params.userId);
       if (!docOwner)
-        return response.notFound(res, { message: 'document not found' });
+        return response.notFound(res, { message: "document not found" });
 
       const admin = await Role.findOne({
-        title: 'admin'
+        title: "admin",
       });
       const queryOptions = {
         skip: (page - 1) * limit,
         limit: limit,
-        sort: { date: -1 }
+        sort: { date: -1 },
       };
       //if the user is an admin send him all documents except private access docs
       if (req.user.roleId == admin._id.toHexString()) {
         let docs = await Document.find(
           {
             access: {
-              $ne: 'private'
+              $ne: "private",
             },
-            ownerId: req.params.userId
+            ownerId: req.params.userId,
           },
           queryOptions
         );
@@ -252,15 +252,15 @@ class Documents {
       const query = {
         $or: [
           {
-            access: 'public',
-            ownerId: req.params.userId
-          }
-        ]
+            access: "public",
+            ownerId: req.params.userId,
+          },
+        ],
       };
       if (docOwner.role == req.user.roleId)
         query.$or.push({
-          access: 'role',
-          ownerId: req.params.userId
+          access: "role",
+          ownerId: req.params.userId,
         });
 
       let docs = await Document.find(query, queryOptions);

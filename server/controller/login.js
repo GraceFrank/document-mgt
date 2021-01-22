@@ -2,6 +2,7 @@ const validate = require("../api-validations/login");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const _ = require("lodash");
+const { Role } = require("../models");
 
 class Login {
   async post(req, res) {
@@ -10,6 +11,7 @@ class Login {
 
     //checking if email exist in db
     const user = await User.findOne({ email: req.body.email });
+    const role = await Role.findOne({ _id: user.role });
     if (!user)
       return res.status(400).send({ error: "invalid email or password" });
 
@@ -27,10 +29,13 @@ class Login {
     res.cookie("token", token, { httpOnly: true });
 
     res.send({
-      Authorization: token,
-      expiresIn: 86400,
+      status: 200,
       message: "ok",
-      data: _.pick(user, ["_id", "name", "email", "userName", "role"]),
+      payload: {
+        user: _.pick(user, ["_id", "name", "email", "userName", "role"]),
+        token,
+        expiresIn: 86400,
+      },
     });
   }
 }
