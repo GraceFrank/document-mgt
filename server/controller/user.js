@@ -114,17 +114,21 @@ class UserController {
    */
   async post(req, res) {
     try {
-      console.log("here");
+      console.log("here", req.body);
+
       //validating request payload
       const { error } = validate(req.body);
-      if (error) return res.status(400).send(error.details[0].message);
+      if (error)
+        return res.status(400).send({ message: error.details[0].message });
 
       //validating that new user is unique by checking if email or username is already in use
       const existingUser = await User.findOne({
         $or: [{ email: req.body.email }, { userName: req.body.userName }],
       });
       if (existingUser)
-        return res.status(409).send("email or username already in use");
+        return res
+          .status(409)
+          .send({ message: "email or username already in use" });
 
       //instantiating new user
       let newUser = req.body;
