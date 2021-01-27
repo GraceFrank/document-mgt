@@ -40,7 +40,7 @@
   },
   "scripts": {
     "test": "export NODE_ENV=test && jest ",
-    "startdev": "nodemon server/index.js",
+    "startdev": "nodemon  server/index.js",
     "start": "node server/index.js",
     "seed": "node server/seeder/seeder.js"
   },
