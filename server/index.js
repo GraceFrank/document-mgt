@@ -25,7 +25,7 @@ if (!process.env.API_PRIVATE_KEY) {
 routes(app);
 prodDevs(app);
 
-const port = process.env.API_PORT;
+const port = process.env.PORT;
 
 connectToRedis();
 //connecting to database
