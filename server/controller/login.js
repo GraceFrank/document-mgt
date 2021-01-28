@@ -32,8 +32,9 @@ class Login {
       status: 200,
       message: "ok",
       payload: {
-        ..._.pick(user, ["_id", "name", "email", "userName", "role"]),
+        ..._.pick(user, ["_id", "name", "email", "userName"]),
         token,
+        role,
         expiresIn: 86400,
       },
     });
