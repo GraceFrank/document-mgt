@@ -33,8 +33,8 @@ class Login {
       message: "ok",
       payload: {
         ..._.pick(user, ["_id", "name", "email", "userName"]),
+        role: role.title,
         token,
-        role,
         expiresIn: 86400,
       },
     });
