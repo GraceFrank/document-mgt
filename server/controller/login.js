@@ -11,9 +11,11 @@ class Login {
 
     //checking if email exist in db
     const user = await User.findOne({ email: req.body.email });
-    const role = await Role.findOne({ _id: user.role });
+
     if (!user)
       return res.status(400).send({ error: "invalid email or password" });
+
+    const role = await Role.findOne({ _id: user.role });
 
     //validating the user password is correct
     const validPassword = await bcrypt.compare(
