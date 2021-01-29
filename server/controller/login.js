@@ -26,7 +26,7 @@ class Login {
 
     const token = user.generateToken();
 
-    res.cookie("token", token, { httpOnly: true, sameSite: "none" });
+    res.cookie("token", token, { httpOnly: true });
 
     res.send({
       status: 200,
